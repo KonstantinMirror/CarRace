@@ -12,12 +12,15 @@ public class StartManager {
 
 	public static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	public static ConcurrentMap<String, Date> competitors = new ConcurrentHashMap<>();
+	private static final long MAX_RUNNING_TIME = 5000;
 
-	public static void main(String[] args) {
+
+	public static void startRase(Car... cars) {
 		List<Thread> threadsList = new ArrayList<>();
-		threadsList.add(new Thread(new Car("Piter", 10)));
-		threadsList.add(new Thread(new Car("Alex", 9)));
-		threadsList.add(new Thread(new Car("Mikle", 9)));
+		for (Car car : cars) {
+			threadsList.add(new Thread(car));
+
+		}
 		Lock lock = readWriteLock.writeLock();
 		lock.lock();
 		for (Thread thread : threadsList) {
@@ -25,7 +28,7 @@ public class StartManager {
 		}
 		lock.unlock();
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(MAX_RUNNING_TIME);
 			for (Thread thread : threadsList) {
 				if (thread.isAlive()) {
 					thread.interrupt();
@@ -34,6 +37,10 @@ public class StartManager {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	public static String getWinner() {
 		Date minTime = null;
 		String nameWinner = null;
 		for (String name : competitors.keySet()) {
@@ -43,7 +50,6 @@ public class StartManager {
 				minTime = currentDate;
 			}
 		}
-		System.out.println("Winner is " + nameWinner);
-
+		return ("Winner is " + nameWinner);
 	}
 }
