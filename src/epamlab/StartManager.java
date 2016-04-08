@@ -5,21 +5,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StartManager {
 
-	public static volatile boolean startFlag = false;
+	public static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	public static ConcurrentMap<String, Date> competitors = new ConcurrentHashMap<>();
 
 	public static void main(String[] args) {
 		List<Thread> threadsList = new ArrayList<>();
 		threadsList.add(new Thread(new Car("Piter", 10)));
-		threadsList.add(new Thread(new Car("Alex", 10)));
-
+		threadsList.add(new Thread(new Car("Alex", 9)));
+		threadsList.add(new Thread(new Car("Mikle", 9)));
+		Lock lock = readWriteLock.writeLock();
+		lock.lock();
 		for (Thread thread : threadsList) {
 			thread.start();
 		}
-		startFlag = true;
+		lock.unlock();
 		try {
 			Thread.sleep(5000);
 			for (Thread thread : threadsList) {
@@ -27,7 +31,6 @@ public class StartManager {
 					thread.interrupt();
 				}
 			}
-
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -41,6 +44,6 @@ public class StartManager {
 			}
 		}
 		System.out.println("Winner is " + nameWinner);
-		
+
 	}
 }
