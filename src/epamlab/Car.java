@@ -1,6 +1,9 @@
 package epamlab;
 
+import java.util.Date;
+
 public class Car implements Runnable {
+	
 	private static final long MAX_DISTANCE = 10000;
 	// Logger log = Logger.getLogger(getClass());
 	private long friction;
@@ -9,7 +12,7 @@ public class Car implements Runnable {
 
 	public Car(String name, long friction) {
 		this.name = name;
-		this.friction = 100;
+		this.friction = friction;
 	}
 
 	@Override
@@ -22,6 +25,8 @@ public class Car implements Runnable {
 				distance += 100;
 				//log.info(name + " " + distance);
 			}
+			Date date = new Date();
+			StartManager.competitors.put(name, date);
 		} catch (InterruptedException e) {
 			//log.error(e);
 		}
