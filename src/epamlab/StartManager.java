@@ -5,28 +5,29 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StartManager {
 
-	public static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-	public static ConcurrentMap<String, Date> competitors = new ConcurrentHashMap<>();
+	public static ConcurrentMap<String, Long> competitors;
+	public static CountDownLatch latch;
 	private static final long MAX_RUNNING_TIME = 5000;
 
-
 	public static void startRase(Car... cars) {
+		latch = new CountDownLatch(1);
+		competitors = new ConcurrentHashMap<>();
 		List<Thread> threadsList = new ArrayList<>();
 		for (Car car : cars) {
 			threadsList.add(new Thread(car));
 
 		}
-		Lock lock = readWriteLock.writeLock();
-		lock.lock();
+
 		for (Thread thread : threadsList) {
 			thread.start();
 		}
-		lock.unlock();
+		latch.countDown();
 		try {
 			Thread.sleep(MAX_RUNNING_TIME);
 			for (Thread thread : threadsList) {
@@ -41,13 +42,13 @@ public class StartManager {
 	}
 
 	public static String getWinner() {
-		Date minTime = null;
+		Long minTime = null;
 		String nameWinner = null;
 		for (String name : competitors.keySet()) {
-			Date currentDate = competitors.get(name);
-			if (minTime == null || (minTime.compareTo(currentDate) > 0)) {
+			Long currentTime = competitors.get(name);
+			if (minTime == null || (minTime.compareTo(currentTime) > 0)) {
 				nameWinner = name;
-				minTime = currentDate;
+				minTime = currentTime;
 			}
 		}
 		return ("Winner is " + nameWinner);

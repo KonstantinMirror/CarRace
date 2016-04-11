@@ -1,8 +1,5 @@
 package epamlab;
 
-import java.util.Date;
-import java.util.concurrent.locks.Lock;
-
 import org.apache.log4j.Logger;
 
 public class Car implements Runnable {
@@ -20,20 +17,18 @@ public class Car implements Runnable {
 
 	@Override
 	public void run() {
-		Lock lock = StartManager.readWriteLock.readLock();
+		
 		try {
-			lock.lock();
+			StartManager.latch.await();
 			while (distance < MAX_DISTANCE) {
 				Thread.sleep(friction);
 				distance += 100;
 				log.info(name + " " + distance);
 			}
-			Date date = new Date();
-			StartManager.competitors.put(name, date);
+			Long time = System.currentTimeMillis();
+			StartManager.competitors.put(name, time);
 		} catch (InterruptedException e) {
 			log.error(e);
-		} finally {
-			lock.unlock();
-		}
+		} 
 	}
 }

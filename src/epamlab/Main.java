@@ -10,5 +10,4 @@ public class Main {
 		StartManager.startRase(cars);
 		System.out.println(StartManager.getWinner());
 	}
-
 }
